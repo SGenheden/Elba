@@ -1,0 +1,79 @@
+units real
+
+# Setting up styles for atoms and potential energy functions
+atom_style     hybrid sphere dipole molecular
+pair_style     hybrid lj/sf/dipole/sf 12.0 lj/sf/dipole/sf 12.0 lj/charmm/coul/long 11.0 12.0
+special_bonds lj/coul 0.0  0.999999 0.999999
+pair_modify pair lj/charmm/coul/long special lj 0.0 0.0 0.5
+pair_modify pair lj/charmm/coul/long special coul 0.0 0.0 0.8333
+pair_modify    mix arithmetic
+kspace_style   pppm/cg 1.0e-5
+bond_style     harmonic
+angle_style    hybrid cosine/squared dipole harmonic
+dihedral_style harmonic
+
+# Read the data file and the force field from file
+read_data ../Prep/data.elba_toluene_z${z}
+include   ../Prep/forcefield.elba_toluene_scaled
+
+# Define some variables, this is the scaling parameter, run time per lambda window and total run time
+variable deltaL equal 0.005
+variable Nwintot equal 500
+variable Nruntot equal ${Nwintot}/${deltaL}
+
+# Define some groups
+group solute type > 6
+group cg type 1:6
+group membrane type 2:6
+group water type 1
+
+set group solute diameter 0.0
+
+# Change the default output
+thermo_style  custom step temp etotal pe
+thermo_modify flush yes lost warn
+thermo        500
+
+# Start with a short minimisation
+minimize        1.0E-4 1.0E-6 1000 1000
+reset_timestep  0
+
+# Setting up neighbor list and time step, use rRESPA
+neighbor     2.0 bin
+neigh_modify every 1 delay 0 check yes
+timestep 6.0
+run_style respa 2 3 hybrid 1 2 1 kspace 1
+
+# Setup integration, thermostat and barostat fixes
+fix integrateSolute    solute nve
+fix integrateCG        cg nve/sphere update dipole/dlm
+fix thermostatWater    water langevin 298 298 1000 9 omega yes zero yes
+fix thermostatMembrane membrane langevin 298 298 1000 9 omega yes zero yes
+fix thermostatSolute   solute langevin 298 298 1000 9
+fix barostat           all press/berendsen aniso 1 1 1000 couple xy modulus 21740
+fix zeroMom            all momentum 500 linear 1 1 1
+
+# This will keep the solute at its original position
+fix fixSolute          solute spring/self 50
+fix_modify fixSolute respa 1
+
+# Get current timestep and change lambda
+variable stepNow equal step
+variable L       equal (floor((v_stepNow)/v_Nwintot)*v_deltaL)
+variable fL      equal v_L*v_L*v_L*v_L
+
+# Scale solute-solvent interaction parameters according to f(Lambda):
+fix adaptSS      all adapt 1 pair lj/sf/dipole/sf:1 epsilon 1*6 7*10 v_fL &
+	                    pair lj/sf/dipole/sf:1 scale  1*6 7*10 v_fL scale yes
+
+# Change the default output
+thermo_style  custom step temp etotal pe v_L
+thermo_modify flush yes lost warn
+thermo        500
+
+# Run the simulation!
+balance 1.1 shift xyz 5 1.1
+run ${Nruntot}
+
+# Write a data file to be used as a starting point of umbrella sampling
+write_data data.elba_toluene_z${z}_grow

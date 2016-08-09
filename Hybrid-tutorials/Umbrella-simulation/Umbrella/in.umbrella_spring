@@ -1,0 +1,73 @@
+units real
+
+# Setting up styles for atoms and potential energy functions
+atom_style     hybrid sphere dipole molecular
+pair_style     hybrid lj/sf/dipole/sf 12.0 lj/sf/dipole/sf 12.0 lj/charmm/coul/long 11.0 12.0
+special_bonds lj/coul 0.0  0.999999 0.999999
+pair_modify pair lj/charmm/coul/long special lj 0.0 0.0 0.5
+pair_modify pair lj/charmm/coul/long special coul 0.0 0.0 0.8333
+pair_modify    mix arithmetic
+kspace_style   pppm/cg 1.0e-5
+bond_style     harmonic
+angle_style    hybrid cosine/squared dipole harmonic
+dihedral_style harmonic
+
+# This determines the umbrella window
+# uncomment the next line if you want to run an ensemble job
+# otherwise specify z at the command line with -var z $Z
+#variable z universe 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30
+
+# Read the data file and the force field from file
+read_data ../Grow/data.elba_toluene_z${z}_grow
+include   ../Prep/forcefield.elba_toluene_scaled
+
+# Run the umbrella simulation in a temporary folder
+shell mkdir z${z}
+shell cd z${z}
+
+# Define some groups
+group solute type > 6
+group cg type 1:6
+group membrane type 2:6
+group water type 1
+
+set group solute diameter 0.0
+velocity all create 298 1
+
+# Setting up neighbor list and time step, use rRESPA
+neighbor     2.0 bin
+neigh_modify every 1 delay 0 check yes
+timestep 6.0
+run_style respa 2 3 hybrid 1 2 1 kspace 1
+
+# Setup integration, thermostat and barostat fixes
+fix integrateSolute    solute nve
+fix integrateCG        cg nve/sphere update dipole/dlm
+fix thermostatWater    water langevin 298 298 1000 9 omega yes zero yes
+fix thermostatMembrane membrane langevin 298 298 1000 9 omega yes zero yes
+fix thermostatSolute   solute langevin 298 298 1000 9
+fix barostat           all press/berendsen aniso 1 1 1000 couple xy modulus 21740
+fix zeroMom            all momentum 500 linear 1 1 1
+fix shakeH             solute shake 1.0e-6 100 0 m 1.00
+
+# This will restraint the solute with an harmonic potential and write it out to a file
+variable umb_force equal 2.5
+fix umbrella solute spring couple membrane ${umb_force} NULL NULL 0.0 ${z}.0 
+fix_modify umbrella respa 1
+compute comSolute solute com
+compute comMembrane membrane com
+variable dr equal (c_comSolute[3]-c_comMembrane[3])
+fix writeDr all ave/time 1 1 50 v_dr file out.dr_z${z}
+
+# Change the default output
+thermo_style  custom step temp press etotal pe f_umbrella v_dr
+thermo_modify flush yes lost warn
+thermo        150
+
+# Run the simulation!
+balance 1.1 shift xyz 5 1.1
+run 4000000
+
+# Write a data file to
+write_data data.elba_toluene_z${z}_umbrella
+
