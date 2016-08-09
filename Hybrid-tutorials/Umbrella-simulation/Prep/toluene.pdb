@@ -1,0 +1,31 @@
+HETATM    1  C1  TOL     1       2.356   1.262   2.817  1.00  0.00           C
+HETATM    2  C2  TOL     1       2.531   2.083   1.705  1.00  0.00           C
+HETATM    3  C3  TOL     1       3.484   1.762   0.736  1.00  0.00           C
+HETATM    4  C4  TOL     1       4.261   0.613   0.891  1.00  0.00           C
+HETATM    5  C5  TOL     1       4.087  -0.209   2.003  1.00  0.00           C
+HETATM    6  C6  TOL     1       3.134   0.115   2.967  1.00  0.00           C
+HETATM    7  H1  TOL     1       1.612   1.516   3.569  1.00  0.00           H
+HETATM    8  H2  TOL     1       1.920   2.976   1.596  1.00  0.00           H
+HETATM    9  C7  TOL     1       3.682   2.650  -0.479  1.00  0.00           C
+HETATM   10  H4  TOL     1       5.005   0.356   0.141  1.00  0.00           H
+HETATM   11  H5  TOL     1       4.694  -1.104   2.118  1.00  0.00           H
+HETATM   12  H6  TOL     1       2.998  -0.526   3.835  1.00  0.00           H
+HETATM   13  H71 TOL     1       3.006   3.507  -0.459  1.00  0.00           H
+HETATM   14  H72 TOL     1       4.707   3.026  -0.510  1.00  0.00           H
+HETATM   15 HC71 TOL     1       3.492   2.087  -1.395  1.00  0.00           H
+CONECT    1    6    2    7
+CONECT    2    3    8    1
+CONECT    3    4    2    9
+CONECT    4    5    3   10
+CONECT    5    6    4   11
+CONECT    6    5   12    1
+CONECT    9    3   13   14   15
+CONECT    7    1
+CONECT    8    2
+CONECT   10    4
+CONECT   11    5
+CONECT   12    6
+CONECT   13    9
+CONECT   14    9
+CONECT   15    9
+END

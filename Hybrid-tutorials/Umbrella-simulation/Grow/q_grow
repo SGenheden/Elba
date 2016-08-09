@@ -1,0 +1,13 @@
+#!/bin/bash -l
+#SBATCH -A 2015-16-24 
+#SBATCH -t 24:00:00
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=32
+
+module add lammps/10Aug15
+export PATH=/cfs/klemming/nobackup/g/genheden/lammps-iain/src:$PATH
+
+for Z in {0..30}
+do
+aprun -n 32 lmp_xe6 -i in.grow -var z $Z > out.grow_z${Z}
+done 
