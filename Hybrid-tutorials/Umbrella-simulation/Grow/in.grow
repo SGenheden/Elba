@@ -72,7 +72,7 @@ thermo_modify flush yes lost warn
 thermo        500
 
 # Run the simulation!
-balance 1.1 shift xyz 5 1.1
+balance 1.1 shift xyz 5 1.1 weight group 1 solute 4.0
 run ${Nruntot}
 
 # Write a data file to be used as a starting point of umbrella sampling
