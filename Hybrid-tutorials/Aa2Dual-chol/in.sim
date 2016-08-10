@@ -50,10 +50,10 @@ fix barostat           all press/berendsen aniso 1 1 1000 couple xy modulus 2174
 fix zeroMom            all momentum 500 linear 1 1 1
 fix shakeH             chol shake 1.0e-6 100 0 m 3.00
 
-balance 1.1 shift xyz 5 1.1
+balance 1.1 shift xyz 5 1.1 weight group 1 chol 4.0
 
 # Run the simulation!
-#fix loadbalance all balance 100 1.1 shift xyz 5 1.1
+fix loadbalance all balance 100 1.1 shift xyz 5 1.1 weight group 1 chol 4.0
 run 5000
 
 # Write a data file to
