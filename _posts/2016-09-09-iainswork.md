@@ -15,13 +15,13 @@ The existing rotational integrator in LAMMPS for rigid-bodies produced trajector
 
 Here is the total energy for a membrane system with 128 DMPC lipids and 40 water/lipid with both the old and DLM integrator.
 
-![convergence]({{ site.url }}/assets/iainswork_2.png)
+![convergence]({{ site.url }}/Elba/assets/iainswork_2.png)
 
 In the first 75 ps a thermostat is used to equilibrate the system but then it is turned-off, giving a simulation in the NVE ensemble. You can see that without DLM, the energy quickly increases before reaching a new plateau.
 
 The new integrator also allow the integration at longer time scales.
 
-![timestep]({{ site.url }}/assets/iainswork_1.png)
+![timestep]({{ site.url }}/Elba/assets/iainswork_1.png)
 
 For the membrane system, up to at least 15 fs is alright.
 
@@ -35,7 +35,7 @@ This was achieved by making it possible to assign different weights to different
 
 Here is the benchmark of atomistic BPTI (882 atoms) solvated in 6136 ELBA water beads with a time-step ratio of 8:1
 
-![benchmark]({{ site.url }}/assets/iainswork_3.png)
+![benchmark]({{ site.url }}/Elba/assets/iainswork_3.png)
 
 Speed-ups vary depending on the computer architecture and type of system. Therefore, it is recommended to run test jobs and try out different weights before setting on a long simulation.
 
