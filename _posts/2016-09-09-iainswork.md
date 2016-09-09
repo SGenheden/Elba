@@ -15,13 +15,13 @@ The existing rotational integrator in LAMMPS for rigid-bodies produced trajector
 
 Here is the total energy for a membrane system with 128 DMPC lipids and 40 water/lipid with both the old and DLM integrator.
 
-![convergence](iainswork_2.png)
+![convergence]({{ iainswork_2.png | prepend: site.github.url }})
 
 In the first 75 ps a thermostat is used to equilibrate the system but then it is turned-off, giving a simulation in the NVE ensemble. You can see that without DLM, the energy quickly increases before reaching a new plateau.
 
 The new integrator also allow the integration at longer time scales.
 
-![convergence](iainswork_1.png)
+![timestep]({{ iainswork_1.png | prepend: site.github.url }})
 
 For the membrane system, up to at least 15 fs is alright.
 
@@ -35,7 +35,7 @@ This was achieved by making it possible to assign different weights to different
 
 Here is the benchmark of atomistic BPTI (882 atoms) solvated in 6136 ELBA water beads with a time-step ratio of 8:1
 
-![convergence](iainswork_3.png)
+![benchmark]({{ iainswork_3.png | prepend: site.github.url }})
 
 Speed-ups vary depending on the computer architecture and type of system. Therefore, it is recommended to run test jobs and try out different weights before setting on a long simulation.
 
@@ -44,4 +44,4 @@ Speed-ups vary depending on the computer architecture and type of system. Theref
 
 It is now possible to run ELBA simulations more efficiently, with longer timesteps both in a variety of ensembles. This would make it easier to study for instance phase transitions in membranes.
 
-Furthermore, the hybrid AA/CG technique is now more attractive as it is more computationally efficient. This allows simulations of larger temporal and spatial scales. 
+Furthermore, the hybrid AA/CG technique is now more attractive as it is more computationally efficient. This allows simulations of larger temporal and spatial scales.
