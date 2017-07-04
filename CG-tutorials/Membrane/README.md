@@ -204,10 +204,20 @@ It will produce a number of output files. `apl.dat` and `vpl.dat` contains the t
 
 Furthermore, the simulation will produce a number of files starting with `numDens`. These are number densities for the different bead types along the membrane normal. You can copy them into an Excel sheet an plot them to see the density profile of the membrane.
 
-Finally, you can visualise the entire trajectory with VMD using
+You can visualise the entire trajectory with VMD using
 
     vmd dopc_elba.pdb sim.dcd
 
 as you will notice the lipids are broken over the central simulation box and thus you will see very long bonds drawn in VMD. It is therefore best to use a VDW representation of the beads.
+
+To make the molecules whole over the trajectory, you can use the following command
+
+    python $SCRIPTS/Md/md_centerwhole.py -f sim.dcd -o sim_whole.dcd -s dopc_elba.pdb --nocenter --noalign
+
+Finally, it is of interest to calculate the chain order parameters. These can be measured experimentally for the C-H bonds in the acyl chains, but since this is a CG simulation, we have to resort to calculate the order parameters of the C-C bonds. This can be done with the following command
+
+    python $SCRIPTS/Md/md_chainorder.py -f sim_whole.dcd -s dopc_elba.pdb --analysis CC --selections dop:t1a-t2a-t3a-t4a-t5a dop:t1b-t2b-t3b-t4b-t5b
+
+and the average order parameters will be in a file called `order.txt` and the order parameters over the entire trajectory in `order_dt.txt`.
 
 This tutorial has now showed you how to setup a simple membrane simulation LAMMPS. It has showed you what the different pieces of input are and how to prepare and understand them. Finally, it has showed you some simple and straightforward analysis.

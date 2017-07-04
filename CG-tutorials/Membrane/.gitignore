@@ -1,3 +1,4 @@
+log.lammps
 apl.dat
 data.dopc_elba
 dopc_elba.gro
@@ -6,5 +7,6 @@ log.lammps
 numDens*
 out.sim
 restart*
-sim.dcd
+sim*.dcd
 vpl.dat
+order*
