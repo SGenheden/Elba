@@ -6,5 +6,6 @@ log.lammps
 numDens*
 out.sim
 restart*
-sim.dcd
+sim*.dcd
 vpl.dat
+order*
