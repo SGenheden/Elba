@@ -15,4 +15,6 @@ At the moment the following tutorials are available:
 
 * **Insert-peptide** - how to insert a peptide in a pre-equilibrated membrane
 
-* **Umbrella-simulation** - how to insert a small solute in a membrane and how to run umbrella simulations to obtain the PMF.
+* **Umbrella-simulation** - how to insert a small solute in a membrane and how to run umbrella simulations to obtain the PMF
+
+* **Solvation** - how to compute the solvation free energy of a small solute in water and octanol
