@@ -4,6 +4,10 @@ This tutorial will show how to compute the solvation free energy of toluene in C
 
 As a starting point, we will use toluene solvated in atomistic water and octanol. We will also assume that toluene already have been parametrized. How to solvate in atomistic solvent and the parametrization of small solutes are explained in other tutorials, which you can find [here](https://github.com/SGenheden/Tutorials/).
 
+
+The procedure is similar to the one used in the following publication:
+    [Predicting Partition Coefficients with a Simple All-Atom/Coarse-Grained Hybrid Model](http://dx.doi.org/10.1021/acs.jctc.5b00963)
+
 ### Coarse graining the water and octanol
 
 The first step is to coarse-grain the solvent molecules. This is straightforward and will use an in-house script that uses a dictionary to map the CG beads onto the atoms.
@@ -65,11 +69,11 @@ There is a number of input variable in the `in.ti` that needs to be given when t
 
 So to run the calculation, one can for instance use
 
-    mpirun -np 4  $LMPPATH/lmp_mpi -i in.ti -var lig toluene -var solv wat -var nt 10
+    mpirun -np 4  $LMPPATH/src/lmp_mpi -i in.ti -var lig toluene -var solv wat -var nt 10
 
 and
 
-    mpirun -np 4 $LMPPATH/lmp_mpi -i in.ti -var lig toluene -var solv oct -var nt 10
+    mpirun -np 4 $LMPPATH/src/lmp_mpi -i in.ti -var lig toluene -var solv oct -var nt 10
 
 but the calculations might take a while so they are better run on a cluster.
 
@@ -91,6 +95,6 @@ for the water, and
 
 for octanol.
 
-The reason we have to put the name of the solute in a list is that the script was made to collect results for a series of ligands. If we have performed a second repeat and put the results in a sub-folder called `R2`, the script would have performed TI on that results as well and computed a standard error. Now the error will be reported as 0.0 kJ/mol because we did not do repeats. 
+The reason we have to put the name of the solute in a list is that the script was made to collect results for a series of ligands. If we have performed a second repeat and put the results in a sub-folder called `R2`, the script would have performed TI on that results as well and computed a standard error. Now the error will be reported as 0.0 kJ/mol because we did not do repeats.
 
 The solvation free energy will be printed in kJ/mol and should be around –3.0 and –15.0 kJ/mol for water and octanol, respectively.
