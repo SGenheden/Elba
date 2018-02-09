@@ -1,5 +1,7 @@
 # Converting an all-atom DOPC/cholesterol membrane to hybrid
 
+**NB: For this tutorial, you need my version of LAMMPS to get the correct pair styles**
+
 The file *step5_assembly.pdb* contains an all-atom system of DOPC/cholesterol membrane created with the Charmm membrane builder. It contains 108 DOPC lipids and 20 cholesterol molecules. We will now convert it to a hybrid model with the DOPC lipids described with ELBA CG model, but cholesterol modelled all-atom with Slipid parameters.
 
 First we need to sort the residues in the pdb-file. It is convinient to have the all-atom molecules last in the structure. Also, Charmm membrane builder tends to mix different lipid types.
@@ -8,7 +10,7 @@ First we need to sort the residues in the pdb-file. It is convinient to have the
 
 This will create a *step5_assembly_sorted.pdb* file.
 
-Next, we will convert it to a hybrid mode. The box information is taken from the *step5_assembly.str* file.
+Next, we will convert it to a hybrid model. The box information is taken from the *step5_assembly.str* file.
 
     python $SCRIPTS/Lammps/aa2cg.py step5_assembly_sorted.pdb -i forcefield.elba -a CHL=data.chol -b 64.5275 64.5275 76.2 -p lj/charmm/coul/long/14 -o 108dopc_20chol
 
