@@ -1,0 +1,87 @@
+units real
+
+# Setting up atom and pair_style
+atom_style     hybrid sphere dipole molecular
+pair_style     hybrid lj/sf/dipole/sf 12.0 lj/sf/dipole/sf 12.0 lj/charmm/coul/long 11.0 12.0
+special_bonds  lj/coul 0.0  0.999999 0.999999
+pair_modify    pair lj/charmm/coul/long special lj 0.0 0.0 0.5
+pair_modify    pair lj/charmm/coul/long special coul 0.0 0.0 0.8333
+kspace_style   pppm/cg 1.0e-5
+special_bonds  amber
+bond_style     harmonic
+angle_style    hybrid cosine/squared dipole harmonic
+dihedral_style harmonic
+
+# Read in configuration and force field information
+read_data data.${lig}_${solv}
+include   forcefield.${lig}_${solv}_scaled
+
+# Define a group for the central molecule
+group solute type > 6
+group solvent type < 7
+
+set group solute diameter 0.0
+velocity all create 298 13153
+
+# Set up integrator, thermostat and barostat
+fix integrateSolute    solute nve
+fix integrateCG        solvent nve/sphere update dipole
+fix thermostatSolvent  solvent langevin 298 298 1000 9 omega yes zero yes
+fix thermostatSolute   solute langevin 298 298 1000 9
+fix zeroMom    all momentum 500 linear 1 1 1
+fix barostat   all press/berendsen iso 1.0 1.0 100 modulus 21740
+
+# Change the default output
+thermo_style  custom step temp press etotal pe
+thermo_modify flush yes lost warn
+thermo        200
+
+# Start with a minimization without any restraints
+minimize 1.0E-4 1.0E-6 1000 1000
+
+# Fix bonds to hydrogens
+fix shakeH   solute shake 1.0e-5 100 0 m 1.0
+
+# Set up neighbor list and timestep
+neighbor 2.0 bin
+neigh_modify every 1 delay 0 check yes
+timestep 6.0
+run_style respa 2 3 hybrid 1 2 1 kspace 1 improper 2
+
+# Equilibrate for 1.2 ns and then reset the time step
+#dump            dumpdcd all dcd 500 test.dcd
+run 200000
+reset_timestep 0
+write_data data.${lig}_${solv}_equil
+
+# Setup various variables
+variable deltaL     equal 0.04                       # resolution of Lambda (L) window
+variable Nwinequil  equal 200000                     # num equilibration steps / window
+variable Nwinsample equal 300000                     # num sampling steps / window
+variable Nwintot    equal ${Nwinequil}+${Nwinsample}
+variable Nruntot    equal ${Nwintot}/${deltaL}       # tot num steps
+variable Ne         equal 50                         # "Nevery" in LAMMPS doc
+variable Nr         equal ${Nwinsample}/${Ne}        # "Nrepeat" in LAMMPS doc
+variable Nf         equal ${Nwintot}                 # "Nfreq" in LAMMPS doc
+variable Ndump      equal ${Nruntot}/50              # step frequency for dump
+
+# Define dynamic variables
+variable stepNow equal step # get current timestep
+# set Lambda (L) so that it changes stepwise from 0 to (1-deltaL):
+variable L       equal (floor((v_stepNow-1)/v_Nwintot)*v_deltaL)
+# evaluate scaling function f(Lambda) and its derivative:
+variable fL      equal (1-v_L)*(1-v_L)*(1-v_L)*(1-v_L)
+variable dfL     equal -4*(1-v_L)*(1-v_L)*(1-v_L)
+
+# Scale solute-solvent interaction parameters according to f(Lambda):
+fix adaptSS all adapt 1 pair lj/sf/dipole/sf:1 epsilon 1*6 7*${nt} v_fL &
+	                    pair lj/sf/dipole/sf:1 scale   1*6 7*${nt} v_fL scale yes
+
+# Compute and average the derivative of PotEngSS with respect to Lambda:
+compute  PotEngSS  solute group/group solvent pair yes
+variable dPotEngSS equal c_PotEngSS*v_dfL/v_fL
+fix dPotEngSS all ave/time ${Ne} ${Nr} ${Nf} v_L v_dPotEngSS file out.dPotEngSS_${lig}-${solv}
+
+# Run the simulation
+balance 1.1 shift xyz 5 1.1 weight group 1 solute 4.0
+run ${Nruntot}

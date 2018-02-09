@@ -1,0 +1,7 @@
+data.toluene_*
+forcefield.toluene*
+log.lammps
+out*
+*dcd
+solutes.txt
+toluene_*.pdb
