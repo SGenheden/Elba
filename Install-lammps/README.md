@@ -6,6 +6,10 @@ Clone my lammps repository from GitHub
 
     git clone https://github.com/SGenheden/lammps
 
+or for the official version
+
+    git clone https://github.com/lammps/lammps.git
+
 Then, install the colvars library (needed for some simulations)
 
     cd lammps/lib/colvars
@@ -17,7 +21,11 @@ Now we are ready to install Lammps. By default Lammps will only contain a limite
     make yes-dipole yes-kspace yes-manybody yes-misc yes-molecule yes-rigid yes-user-colvars
     cp USER-MISC/angle_dipole.* USER-MISC/pair_lj_charmm_coul_long_14.* USER-MISC/pair_lj_sf_dipole_sf.* .
 
-The last command add a few bits from the USER-MISC package. This is a large package with user-contributed code and it is unnecessary to install all of it.
+The last command add a few bits from the USER-MISC package. This is a large package with user-contributed code and it is unnecessary to install all of it. It will work with the official version of LAMMPS as well, but then you will obtain a warning
+
+    cp: USER-MISC/pair_lj_charmm_coul_long_14.*: No such file or directory
+
+and this is alright. You just will not be able to use that pair style.
 
 Finally, we are ready to compile lammps using an appropriate make file.
 
